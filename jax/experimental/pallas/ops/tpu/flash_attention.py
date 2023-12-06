@@ -174,6 +174,23 @@ def flash_attention(
     raise ValueError(
         f"KV sequence length mismatch: got {kv_seq_len} and {kv_seq_len_v}"
     )
+  if ab is not None:
+    if ab.shape != (batch_size, num_heads, q_seq_len, kv_seq_len):
+      raise ValueError(
+          f"Attention bias shape mismatch: expected ({batch_size=},"
+          f" {num_heads=}, {q_seq_len=}, {kv_seq_len=}), got {ab.shape}"
+      )
+  if segment_ids is not None:
+    if segment_ids.q.shape != (q_seq_len,):
+      raise ValueError(
+          f"Q segment ids shape mismatch: expected ({q_seq_len=},), got"
+          f" {segment_ids.q.shape}"
+      )
+    if segment_ids.q.shape != (kv_seq_len,):
+      raise ValueError(
+          f"Q segment ids shape mismatch: expected ({kv_seq_len=},), got"
+          f" {segment_ids.kv.shape}"
+      )
   if block_sizes is None:
     block_sizes = BlockSizes.get_default(
         batch_size, num_heads, q_seq_len, kv_seq_len, d_model
